@@ -37,7 +37,6 @@ final class AdviceFactory extends PersistentObjectFactory
     {
         return [
             'content' => self::faker()->text(),
-            'month' => self::faker()->numberBetween(1, 12),
         ];
     }
 

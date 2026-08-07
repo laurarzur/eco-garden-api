@@ -22,7 +22,8 @@ class AdviceRepository extends ServiceEntityRepository
     public function findByMonth(int $month): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.month = :month')
+            ->join('a.months', 'm')
+            ->andWhere('m.id = :month')
             ->setParameter('month', $month)
             ->orderBy('a.id', 'ASC')
             ->getQuery()
