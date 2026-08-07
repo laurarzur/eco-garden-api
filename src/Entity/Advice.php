@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\AdviceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -15,10 +18,19 @@ class Advice
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['adviceList'])]
     private ?string $content = null;
 
-    #[ORM\Column]
-    private ?int $month = null;
+    /**
+     * @var Collection<int, Month>
+     */
+    #[ORM\ManyToMany(targetEntity: Month::class, inversedBy: 'advice')]
+    private Collection $months;
+
+    public function __construct()
+    {
+        $this->months = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -37,14 +49,26 @@ class Advice
         return $this;
     }
 
-    public function getMonth(): ?int
+    /**
+     * @return Collection<int, Month>
+     */
+    public function getMonths(): Collection
     {
-        return $this->month;
+        return $this->months;
     }
 
-    public function setMonth(int $month): static
+    public function addMonth(Month $month): static
     {
-        $this->month = $month;
+        if (!$this->months->contains($month)) {
+            $this->months->add($month);
+        }
+
+        return $this;
+    }
+
+    public function removeMonth(Month $month): static
+    {
+        $this->months->removeElement($month);
 
         return $this;
     }

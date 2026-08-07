@@ -16,7 +16,7 @@ final class AdviceController extends AbstractController
     {
         $currentMonth = date('n');
         $adviceList = $repo->findByMonth($currentMonth);
-        $jsonAdviceList = $serializer->serialize($adviceList, 'json');
+        $jsonAdviceList = $serializer->serialize($adviceList, 'json', ['groups' => 'adviceList']);
         return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
     }
 
@@ -24,7 +24,7 @@ final class AdviceController extends AbstractController
     public function getMonthAdvice(int $mois, AdviceRepository $repo, SerializerInterface $serializer): JsonResponse
     {
         $adviceList = $repo->findByMonth($mois);
-        $jsonAdviceList = $serializer->serialize($adviceList, 'json');
+        $jsonAdviceList = $serializer->serialize($adviceList, 'json', ['groups' => 'adviceList']);
         return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
     }
 }
