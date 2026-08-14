@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class AdviceController extends AbstractController
 {
@@ -34,9 +35,16 @@ final class AdviceController extends AbstractController
     }
 
     #[Route('/api/conseil', name: 'createAdvice', methods: ['POST'])]
-    public function createAdvice(Request $request, SerializerInterface $serializer, EntityManagerInterface $em, MonthRepository $monthRepo): JsonResponse
+    public function createAdvice(Request $request, SerializerInterface $serializer, EntityManagerInterface $em, MonthRepository $monthRepo, ValidatorInterface $validator): JsonResponse
     {
         $advice = $serializer->deserialize($request->getContent(), Advice::class, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['months']]);
+
+        $errors = $validator->validate($advice);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
+
         $content = $request->toArray();
         $monthsIds = $content['months'] ?? [];
         foreach ($monthsIds as $monthId) {
@@ -54,12 +62,19 @@ final class AdviceController extends AbstractController
     }
 
     #[Route('/api/conseil/{id}', name: 'editAdvice', methods: ['PUT'])]
-    public function editAdvice(Request $request, SerializerInterface $serializer, Advice $currentAdvice, EntityManagerInterface $em, MonthRepository $monthRepo): JsonResponse
+    public function editAdvice(Request $request, SerializerInterface $serializer, Advice $currentAdvice, EntityManagerInterface $em, MonthRepository $monthRepo, ValidatorInterface $validator): JsonResponse
     {
         $updatedAdvice = $serializer->deserialize($request->getContent(), Advice::class, 'json', [
             AbstractNormalizer::OBJECT_TO_POPULATE => $currentAdvice,
             'ignored_attributes' => ['months']
         ]);
+
+        $errors = $validator->validate($updatedAdvice);
+
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
+
         $content = $request->toArray();
         $monthsIds = $content['months'] ?? [];
         foreach ($monthsIds as $monthId) {

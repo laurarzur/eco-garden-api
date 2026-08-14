@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -20,6 +21,8 @@ class Advice
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['adviceList'])]
+    #[Assert\NotBlank(message: "Le contenu du conseil est obligatoire")]
+    #[Assert\Length(min: 3, minMessage: "Le contenu doit faire au moins {{ limit }} caractères")]
     private ?string $content = null;
 
     /**
