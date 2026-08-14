@@ -15,6 +15,7 @@ class Advice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['adviceList'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
