@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -35,6 +36,7 @@ final class AdviceController extends AbstractController
     }
 
     #[Route('/api/conseil', name: 'createAdvice', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas l\'autorisation d\'ajouter un conseil')]
     public function createAdvice(Request $request, SerializerInterface $serializer, EntityManagerInterface $em, MonthRepository $monthRepo, ValidatorInterface $validator): JsonResponse
     {
         $advice = $serializer->deserialize($request->getContent(), Advice::class, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['months']]);
@@ -62,6 +64,7 @@ final class AdviceController extends AbstractController
     }
 
     #[Route('/api/conseil/{id}', name: 'editAdvice', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas l\'autorisation de modifier un conseil')]
     public function editAdvice(Request $request, SerializerInterface $serializer, Advice $currentAdvice, EntityManagerInterface $em, MonthRepository $monthRepo, ValidatorInterface $validator): JsonResponse
     {
         $updatedAdvice = $serializer->deserialize($request->getContent(), Advice::class, 'json', [
@@ -91,6 +94,7 @@ final class AdviceController extends AbstractController
     }
 
     #[Route('/api/conseil/{id}', name: 'deleteAdvice', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas l\'autorisation de supprimer un conseil')]
     public function deleteAdvice(Advice $advice, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($advice);
