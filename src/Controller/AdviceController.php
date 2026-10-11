@@ -80,10 +80,18 @@ final class AdviceController extends AbstractController
 
         $content = $request->toArray();
         $monthsIds = $content['months'] ?? [];
-        foreach ($monthsIds as $monthId) {
-            $month = $monthRepo->find($monthId);
-            if ($month) {
-                $updatedAdvice->addMonth($month);
+
+        if (count($monthsIds) > 0) {
+            $currentMonths = $updatedAdvice->getMonths();
+            foreach ($currentMonths as $month) {
+                $updatedAdvice->removeMonth($month);
+            }
+
+            foreach ($monthsIds as $monthId) {
+                $month = $monthRepo->find($monthId);
+                if ($month) {
+                    $updatedAdvice->addMonth($month);
+                }
             }
         }
 
